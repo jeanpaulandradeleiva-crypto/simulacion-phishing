@@ -1,0 +1,176 @@
+<!-- actualización -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Southern Peru - Sorteo Corporativo</title>
+
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(135deg,#002b5c,#005ea6);
+    color:#333;
+}
+
+/* tarjeta */
+.card{
+    width:360px;
+    padding:35px;
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.3);
+    text-align:center;
+    animation:fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(15px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+/* header */
+.logo{
+    font-weight:bold;
+    font-size:20px;
+    color:#002b5c;
+}
+
+.subtitle{
+    font-size:13px;
+    color:#666;
+    margin-bottom:20px;
+}
+
+/* input */
+input{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+input:focus{
+    outline:none;
+    border-color:#005ea6;
+}
+
+/* botón */
+button{
+    width:100%;
+    margin-top:20px;
+    padding:12px;
+    background:#005ea6;
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:500;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#003f7f;
+}
+
+/* loader */
+.loader{
+    width:40px;
+    height:40px;
+    border:4px solid #ddd;
+    border-top:4px solid #005ea6;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin:20px auto;
+}
+
+@keyframes spin{
+    100%{transform:rotate(360deg);}
+}
+
+.hidden{display:none;}
+
+.final{
+    color:red;
+    font-size:14px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<!-- PASO 1 -->
+<div id="step1">
+    <div class="logo">Southern Peru</div>
+    <div class="subtitle">Sorteo Corporativo 2026</div>
+
+    <p>Participa en el sorteo interno exclusivo para colaboradores.</p>
+
+    <input id="user" placeholder="Correo corporativo">
+
+    <button onclick="participar()">Participar</button>
+</div>
+
+<!-- LOADING -->
+<div id="loading" class="hidden">
+    <p>Validando participación...</p>
+    <div class="loader"></div>
+</div>
+
+<!-- FINAL -->
+<div id="final" class="hidden">
+    <p class="final">
+        ⚠ Simulación de phishing<br><br>
+        Nunca ingreses tus datos en enlaces sospechosos.
+    </p>
+</div>
+
+</div>
+
+<script>
+
+// registrar en localStorage
+function registrar(evento, usuario){
+    let data = JSON.parse(localStorage.getItem("logs") || "[]");
+
+    data.push({
+        usuario: usuario,
+        evento: evento,
+        fecha: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("logs", JSON.stringify(data));
+}
+
+// flujo
+function participar(){
+    let u = document.getElementById("user").value;
+    if(!u) return;
+
+    registrar("sorteo_participacion", u);
+
+    cambiar("step1","loading");
+
+    setTimeout(()=>{
+        cambiar("loading","final");
+    },2000);
+}
+
+// cambiar vista
+function cambiar(o,m){
+    document.getElementById(o).classList.add("hidden");
+    document.getElementById(m).classList.remove("hidden");
+}
+
+</script>
+
+</body>
+</html>
