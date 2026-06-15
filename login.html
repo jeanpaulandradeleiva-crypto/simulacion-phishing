@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Iniciar sesión</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #e6f0fa, #ffffff);
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, #0078d4 0%, transparent 70%);
+    top: -200px;
+    left: -200px;
+    filter: blur(100px);
+    opacity: 0.5;
+}
+
+body::after {
+    content: "";
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, #00a4ef 0%, transparent 70%);
+    bottom: -150px;
+    right: -150px;
+    filter: blur(100px);
+    opacity: 0.4;
+}
+
+.card {
+    position: relative;
+    width: 360px;
+    padding: 40px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    z-index: 1;
+}
+
+.fade { animation: fadeIn 0.4s ease; }
+
+@keyframes fadeIn {
+    from { opacity:0; transform:translateY(10px); }
+    to { opacity:1; transform:translateY(0); }
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    margin-bottom: 20px;
+}
+.logo div { width: 100%; height: 100%; }
+.r { background:#f25022; }
+.g { background:#7fba00; }
+.b { background:#00a4ef; }
+.y { background:#ffb900; }
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 12px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+button {
+    width: 100%;
+    background: #0078d4;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    margin-top: 18px;
+    cursor: pointer;
+}
+
+button:hover { background:#005ea6; }
+
+.checkbox { margin-top: 10px; font-size: 13px; }
+
+.loader {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ddd;
+    border-top: 4px solid #0078d4;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.hidden { display: none; }
+.center { text-align: center; }
+
+.warning {
+    color: red;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<!-- PASO 1 -->
+<div id="step1" class="fade">
+    <div class="logo">
+        <div class="r"></div>
+        <div class="g"></div>
+        <div class="b"></div>
+        <div class="y"></div>
+    </div>
+
+    <h2>Iniciar sesión</h2>
+
+    <input type="email" id="correo" placeholder="Correo electrónico">
+    <button onclick="nextStep()">Siguiente</button>
+</div>
+
+<!-- PASO 2 -->
+<div id="step2" class="hidden">
+    <h3 id="correoTxt"></h3>
+
+    <input type="password" id="pass" placeholder="Contraseña">
+
+    <div class="checkbox">
+        <input type="checkbox" id="recordar">
+        <label for="recordar">Mantener la sesión iniciada</label>
+    </div>
+
+    <button onclick="verificar()">Iniciar sesión</button>
+</div>
+
+<!-- LOADING -->
+<div id="loading" class="hidden center">
+    <p>Iniciando sesión...</p>
+    <div class="loader"></div>
+</div>
+
+<!-- FINAL -->
+<div id="final" class="hidden">
+    <div class="warning">
+        ⚠ Simulación de phishing<br><br>
+        Nunca ingreses credenciales en sitios no verificados.
+    </div>
+</div>
+
+</div>
+
+<script>
+function cambiar(pasoOcultar, pasoMostrar) {
+    document.getElementById(pasoOcultar).classList.add("hidden");
+    let el = document.getElementById(pasoMostrar);
+    el.classList.remove("hidden");
+    el.classList.add("fade");
+}
+
+function nextStep() {
+    let correo = document.getElementById("correo").value;
+    if(correo === "") return;
+
+    document.getElementById("correoTxt").innerText = correo;
+
+    // Evento: correo ingresado
+    enviarEvento("correo_ingresado", correo);
+
+    cambiar("step1", "step2");
+}
+
+function verificar() {
+    let correo = document.getElementById("correo").value;
+    let intento = document.getElementById("pass").value !== "";
+
+    cambiar("step2", "loading");
+
+    // Evento: intento login (sin guardar contraseña)
+    enviarEvento("intento_login", correo, intento);
+
+    setTimeout(() => {
+        cambiar("loading", "final");
+    }, 2000);
+}
+
+function enviarEvento(tipo, correo, intento = false) {
+    fetch("http://localhost:3000/registro", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            correo: correo,
+            evento: tipo,
+            intento_password: intento,
+            fecha: new Date().toISOString(),
+            navegador: navigator.userAgent
+        })
+    }).catch(e => console.log(e));
+}
+</script>
+
+</body>
+</html>
